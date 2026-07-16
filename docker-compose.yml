@@ -1,0 +1,12 @@
+services:
+  mongodb:
+    image: mongo
+    ports:
+      - "27018:27017"
+
+  migration:
+    build: .
+    depends_on:
+      - mongodb
+    env_file:
+      - .env
