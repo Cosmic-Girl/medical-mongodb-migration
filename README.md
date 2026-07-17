@@ -19,28 +19,31 @@ L'ensemble du projet est conteneurisé avec Docker afin de garantir un environne
 
 ## 3. Architecture du pipeline
 
-┌─────────────────────────────────────────────────┐
-│                   Docker Compose                 │
-└─────────────────────┬───────────────────────────┘
-                      │
-                      ▼
-          ┌───────────────────────┐
-          │   Service Python      │
-          │   Script de migration │
-          └───────────┬───────────┘
-                      │
-        ┌─────────────┼─────────────┐
-        ▼             ▼             ▼
-   Extraction   Transformation   Chargement
-        │             │             │
-        └─────────────┼─────────────┘
-                      ▼
-          ┌───────────────────────┐
-          │  Service MongoDB      │
-          │  (Base de données)    │
-          └───────────────────────┘
 
-Le script lit le fichier CSV, transforme chaque ligne en document MongoDB puis insère les documents dans une collection.
+```mermaid
+flowchart TD
+    A[Jeu de données CSV<br/>55 500 hospitalisations]
+    B[Service Python<br/>Script de migration]
+    C[Extraction<br/>Lecture avec csv.DictReader]
+    D[Transformation<br/>Nettoyage, typage et sous-documents]
+    E[Chargement<br/>Insertion avec PyMongo]
+    F[(Service MongoDB<br/>Collection hospitalizations)]
+    G[MongoDB Compass<br/>Contrôle des données]
+
+    A --> B
+    B --> C
+    C --> D
+    D --> E
+    E --> F
+    F --> G
+
+    subgraph DC[Docker Compose]
+        B
+        F
+    end
+```
+
+Le script lit le fichier CSV, transforme chaque ligne en document MongoDB structuré, puis insère les documents dans la collection `hospitalizations`.
 
 
 ## 4. Structure du projet
