@@ -1,12 +1,13 @@
 # Migration d'un jeu de données médical vers MongoDB
 
+Projet réalisé dans le cadre de la formation **Data Engineer – OpenClassrooms**.
+Ce projet consiste à migrer un jeu de données médical au format CSV vers une base MongoDB à l'aide d'un pipeline ETL développé en Python et conteneurisé avec Docker.
+
+
 ## 1. Présentation du projet
 
-Ce projet a été réalisé dans le cadre de la formation Data Engineer d'OpenClassrooms.
-L'objectif est de migrer un jeu de données médical au format CSV vers une base de données MongoDB.
-Les données sont transformées en documents JSON structurés avant leur insertion dans une collection MongoDB.
-L'ensemble du projet est conteneurisé avec Docker afin de garantir un environnement reproductible et simple à déployer.
-
+Le pipeline extrait les données d'un fichier CSV, les transforme en documents JSON structurés, puis les charge dans une collection MongoDB.
+La solution est développée en Python et exécutée dans un environnement Docker afin de garantir une exécution reproductible et un déploiement simplifié.
 
 ## 2. Objectifs
 
@@ -67,7 +68,7 @@ Le script lit le fichier CSV, transforme chaque ligne en document MongoDB struct
 ## 5. Technologies utilisées
 
 ### Langages
-- Python 3.12 : développement du script de migration et transformation des données.
+- Python 3.x : développement du script de migration et transformation des données.
 
 ### Base de données
 - MongoDB : stockage des données sous forme de documents JSON.
@@ -97,7 +98,7 @@ Avant de lancer le projet, il est nécessaire d'avoir installé :
 
 ### Cloner le repository
 ```bash
-git clone https://github.com/<username>/<repository>.git
+git clone https://github.com/Cosmic-Girl/medical-mongodb-migration.git
 cd <repository>
 ```
 
@@ -177,10 +178,12 @@ Exemple de document stocké :
 - insertion de 55 500 documents ;
 - journalisation des principales étapes.
 
+La migration s'exécute intégralement dans un environnement Docker reproductible et les données sont immédiatement consultables via MongoDB Compass.
 Les données sont ensuite consultables directement depuis MongoDB Compass.
 
-[Capture MongoDB Compass]
-![alt text]Capture_MongoDB_Compass.png)
+### Aperçu dans MongoDB Compass
+
+![MongoDB Compass](docs/images/Capture_MongoDB_Compass.png)
 
 
 ## 10. Choix techniques
@@ -264,3 +267,21 @@ Ce projet illustre la mise en œuvre d'un pipeline ETL automatisé permettant de
 Il met en œuvre plusieurs bonnes pratiques de Data Engineering, notamment la conteneurisation avec Docker, l'utilisation de variables d'environnement, la transformation des données avant chargement et la journalisation des traitements.
 
 Ce projet met également en évidence l'importance de la qualité du code, de la reproductibilité des environnements et de l'automatisation des traitements dans une démarche de Data Engineering.
+
+
+
+
+
+## Compétences mises en œuvre
+
+Au cours de ce projet, les compétences suivantes ont été mobilisées :
+
+- Python
+- MongoDB
+- Docker
+- Docker Compose
+- Git et GitHub
+- Transformation de données (ETL)
+- Variables d'environnement
+- Logging
+- Documentation technique
