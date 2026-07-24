@@ -227,7 +227,7 @@ Avantages :
 
 ### Gestion des droits MongoDB
 
-L'accès à la base de données repose sur trois comptes distincts (mongo_admin, migration_user et medical_reader). Cette séparation applique le principe du moindre privilège en limitant les droits accordés à chaque utilisateur selon son rôle. Le pipeline de migration n'utilise donc pas le compte administrateur, ce qui réduit les risques en cas de compromission des identifiants.
+L'accès à la base de données repose sur trois comptes distincts (mongo_admin, migration_user et medical_reader). Cette séparation applique le principe du moindre privilège en limitant les droits accordés à chaque utilisateur selon son rôle. Le pipeline de migration utilise un compte dédié disposant uniquement des droits de lecture et d'écriture sur la base. Le compte administrateur n'est donc jamais utilisé par l'application, ce qui limite les conséquences si les identifiants du pipeline venaient à être compromis.
 
 ### Transformation des données avant insertion
 
