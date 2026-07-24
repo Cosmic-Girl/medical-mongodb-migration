@@ -1,6 +1,11 @@
 services:
   mongodb:
     image: mongo
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: mongo_admin
+      MONGO_INITDB_ROOT_PASSWORD: mot_de_passe_test
+    volumes:
+      - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
     ports:
       - "27018:27017"
 
