@@ -55,6 +55,7 @@ Le script lit le fichier CSV, transforme chaque ligne en document MongoDB struct
 │   └── healthcare_dataset.csv
 ├── scripts/
 │   └── migrate.py
+├── mongo-init.js
 ├── .env
 ├── .env.example
 ├── .gitignore
@@ -103,29 +104,47 @@ cd <repository>
 ```
 
 ### Variables d'environnement
-Créer un fichier .env à la racine du projet
+Créer un fichier .env à la racine du projet en reprenant la structure suivante :
 ```env
-MONGO_URI=mongodb://mongodb:27017/
+MONGO_URI=mongodb://migration_user:mot_de_passe_migration@mongodb:27017/?authSource=medical_db
 DATABASE_NAME=medical_db
 COLLECTION_NAME=hospitalizations
 ```
 
+### Authentification MongoDB
+
+Le projet utilise l'authentification native de MongoDB.
+Lors du premier démarrage du conteneur, le script mongo-init.js crée automatiquement trois utilisateurs :
+
+| Utilisateur | Rôle |
+|-------------|------|
+| `mongo_admin` | Administration complète de MongoDB |
+| `migration_user` | Lecture / écriture sur `medical_db` (utilisé par le pipeline ETL) |
+| `medical_reader` | Lecture seule des données (consultation avec MongoDB Compass) |
+
+Cette séparation applique le principe du moindre privilège, en limitant les droits accordés à chaque utilisateur selon son usage.
+
+
 ## 7. Lancement du projet
 
 Le projet peut être lancé entièrement avec Docker Compose.
+
+> **Remarque :** les utilisateurs MongoDB sont créés automatiquement lors de la première initialisation du conteneur grâce au script mongo-init.js. Si le volume Docker est supprimé (docker compose down -v), les utilisateurs seront recréés au prochain démarrage.
 
 ### Construction des images & démarrage des services
 
 ```bash
 docker compose up --build
 ```
+> **Important :**
+> Si une instance MongoDB existe déjà avec un volume Docker, utilisez `docker compose down -v` avant de relancer le projet afin de recréer les utilisateurs MongoDB et réinitialiser la base.
 
 ### Accès à MongoDB Compass
 
 Pour visualiser les données, connectez-vous avec :
 
 ```text
-mongodb://localhost:27018/
+mongodb://medical_reader:mot_de_passe_lecture@localhost:27018/?authSource=medical_db
 ```
 
 ## 8. Structure des données
@@ -178,8 +197,7 @@ Exemple de document stocké :
 - insertion de 55 500 documents ;
 - journalisation des principales étapes.
 
-La migration s'exécute intégralement dans un environnement Docker reproductible et les données sont immédiatement consultables via MongoDB Compass.
-Les données sont ensuite consultables directement depuis MongoDB Compass.
+La migration s'exécute intégralement dans un environnement Docker reproductible et les 55 500 documents sont immédiatement consultables dans MongoDB Compass.
 
 ### Aperçu dans MongoDB Compass
 
@@ -199,6 +217,10 @@ Avantages :
 - gestion native des documents JSON
 - facilité d'évolution de la structure des données
 - bonne adaptation aux volumes importants de données
+
+### Gestioon des droits MongoDB
+
+L'accès à la base de données repose sur trois comptes distincts (mongo_admin, migration_user et medical_reader). Cette séparation applique le principe du moindre privilège en limitant les droits accordés à chaque utilisateur selon son rôle. Le pipeline de migration n'utilise donc pas le compte administrateur, ce qui réduit les risques en cas de compromission des identifiants.
 
 ### Transformation des données avant insertion
 
