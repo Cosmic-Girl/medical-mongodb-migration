@@ -114,7 +114,7 @@ COLLECTION_NAME=hospitalizations
 ### Authentification MongoDB
 
 Le projet utilise l'authentification native de MongoDB.
-Lors du premier démarrage du conteneur, le script mongo-init.js crée automatiquement trois utilisateurs :
+Lors du premier démarrage, MongoDB crée le compte administrateur à partir du docker-compose.yml. Le script mongo-init.js crée ensuite les utilisateurs applicatifs migration_user et medical_reader.
 
 | Utilisateur | Rôle |
 |-------------|------|
@@ -137,7 +137,14 @@ Le projet peut être lancé entièrement avec Docker Compose.
 docker compose up --build
 ```
 > **Important :**
-> Si une instance MongoDB existe déjà avec un volume Docker, utilisez `docker compose down -v` avant de relancer le projet afin de recréer les utilisateurs MongoDB et réinitialiser la base.
+> Si vous souhaitez réinitialiser complètement la base de données et recréer les utilisateurs MongoDB, exécutez d'abord :
+```bash
+docker compose down -v
+```
+puis relancez :
+```bash
+docker compose up --build
+```
 
 ### Accès à MongoDB Compass
 
@@ -218,7 +225,7 @@ Avantages :
 - facilité d'évolution de la structure des données
 - bonne adaptation aux volumes importants de données
 
-### Gestioon des droits MongoDB
+### Gestion des droits MongoDB
 
 L'accès à la base de données repose sur trois comptes distincts (mongo_admin, migration_user et medical_reader). Cette séparation applique le principe du moindre privilège en limitant les droits accordés à chaque utilisateur selon son rôle. Le pipeline de migration n'utilise donc pas le compte administrateur, ce qui réduit les risques en cas de compromission des identifiants.
 
@@ -247,7 +254,7 @@ Les informations de connexion MongoDB sont externalisées afin de :
 - faciliter le changement d'environnement (développement, test, production) ;
 - respecter les bonnes pratiques d'industrialisation.
 
-### Logging
+### Journalisation
 
 Le module `logging` de Python est utilisé afin de :
 
@@ -305,5 +312,5 @@ Au cours de ce projet, les compétences suivantes ont été mobilisées :
 - Git et GitHub
 - Transformation de données (ETL)
 - Variables d'environnement
-- Logging
+- Journalisation
 - Documentation technique
