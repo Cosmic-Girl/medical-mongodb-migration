@@ -13,6 +13,7 @@ from pymongo.errors import ConnectionFailure, PyMongoError
 MONGO_URI = os.getenv("MONGO_URI", "mongodb://localhost:27017/")
 DATABASE_NAME = os.getenv("DATABASE_NAME", "medical_db")
 COLLECTION_NAME = os.getenv("COLLECTION_NAME", "hospitalizations")
+BATCH_SIZE = 1000
 
 # Configuration du logging
 logging.basicConfig(
@@ -75,23 +76,55 @@ def connect_to_mongodb():
 def import_data(collection):
     with open(CSV_FILE, mode="r", encoding="utf-8") as file:
         reader = csv.DictReader(file)
-        count = 0
+        rows_read = 0
+        documents_inserted = 0
+        batch = []
 
         for row in reader:
-            document = build_document(row)
+            rows_read += 1
 
+            document = build_document(row)
+            batch.append(document)
+
+            if len(batch) == BATCH_SIZE:
+                try:
+                    collection.insert_many(batch)
+                    documents_inserted += len(batch)
+
+                    logging.info(
+                        f"{documents_inserted} documents insérés..."
+                    )
+
+                    batch.clear()
+
+                except PyMongoError as e:
+                    logging.error(
+                        f"Erreur lors de l'insertion du lot : {e}"
+                    )
+                    raise SystemExit(1)
+
+        if batch:
             try:
-                collection.insert_one(document)
+                collection.insert_many(batch)
+                documents_inserted += len(batch)
+
+                logging.info(
+                    f"{documents_inserted} documents insérés..."
+                )
+
+                batch.clear()
 
             except PyMongoError as e:
-                logging.error(f"Erreur lors de l'insertion : {e}")
+                logging.error(
+                    f"Erreur lors de l'insertion du dernier lot : {e}"
+                )
+                raise SystemExit(1)
 
-            count += 1
-
-            if count % 100 == 0:
-                logging.info(f"{count} documents importés...")
-
-    logging.info(f"Migration terminée : {count} documents importés.")
+    logging.info(
+        f"Migration terminée : "
+        f"{rows_read} lignes lues et "
+        f"{documents_inserted} documents insérés."
+    )
 
 def main():
     collection = connect_to_mongodb()

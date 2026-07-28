@@ -27,7 +27,7 @@ flowchart TD
     B[Service Python<br/>Script de migration]
     C[Extraction<br/>Lecture avec csv.DictReader]
     D[Transformation<br/>Nettoyage, typage et sous-documents]
-    E[Chargement<br/>Insertion avec PyMongo]
+    E[Chargement<br/>Insertion par lots avec PyMongo]
     F[(Service MongoDB<br/>Collection hospitalizations)]
     G[MongoDB Compass<br/>Contrôle des données]
 
@@ -201,10 +201,12 @@ Exemple de document stocké :
 À l'exécution du pipeline :
 - lecture des 55 500 lignes du fichier CSV ;
 - transformation des lignes en documents MongoDB ;
-- insertion de 55 500 documents ;
+- insertion des 55 500 documents par lots de 1 000 avec `insert_many()` ;
 - journalisation des principales étapes.
 
-La migration s'exécute intégralement dans un environnement Docker reproductible et les 55 500 documents sont immédiatement consultables dans MongoDB Compass.
+La migration s'exécute intégralement dans un environnement Docker reproductible. L'utilisation d'insertions par lots améliore les performances du chargement tout en conservant une consommation mémoire maîtrisée.
+
+Les 55 500 documents sont immédiatement consultables dans MongoDB Compass.
 
 ### Aperçu dans MongoDB Compass
 
@@ -237,6 +239,11 @@ La transformation est réalisée avant l'insertion afin de :
 - organiser les informations sous forme de documents imbriqués ;
 - garantir une structure homogène dans MongoDB.
 
+### Insertion des données par lots
+
+Les documents sont insérés par lots de 1 000 avec `insert_many()`.
+Cette approche réduit le nombre d'échanges entre le script Python et MongoDB, améliore les performances et permet de traiter efficacement des volumes de données plus importants.
+
 ### Utilisation de Docker
 
 Docker permet de reproduire facilement l'environnement du projet.
@@ -261,7 +268,7 @@ Le module `logging` de Python est utilisé afin de :
 - suivre l'exécution du pipeline ;
 - distinguer les niveaux de gravité (`INFO`, `WARNING`, `ERROR`) ;
 - horodater les événements ;
-- faciliter le débogage en cas d'échec.
+- faciliter le suivi de l'exécution et le débogage en cas d'échec.
 
 ## 11. Améliorations possibles
 
@@ -278,7 +285,6 @@ Plusieurs évolutions pourraient être envisagées :
 - Ajouter une gestion des erreurs et des reprises après échec.
 
 ### Performance
-- Mettre en place des insertions par lots (`bulk_insert`).
 - Ajouter des index MongoDB sur les champs fréquemment utilisés.
 - Optimiser le traitement pour des fichiers CSV volumineux.
 
